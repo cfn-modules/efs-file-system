@@ -96,35 +96,21 @@ Resources:
       Dimensions:
       - Name: FileSystemId
         Value: !Ref FileSystem
-  MountTargetAPublic:
+  MountTargetA:
     Type: 'AWS::EFS::MountTarget'
     Properties:
       FileSystemId: !Ref FileSystem
       SecurityGroups:
       - !Ref SecurityGroup
       SubnetId: {'Fn::ImportValue': !Sub '${VpcModule}-SubnetIdAPublic'}
-  MountTargetAPrivate:
-    Type: 'AWS::EFS::MountTarget'
-    Properties:
-      FileSystemId: !Ref FileSystem
-      SecurityGroups:
-      - !Ref SecurityGroup
-      SubnetId: {'Fn::ImportValue': !Sub '${VpcModule}-SubnetIdAPrivate'}
-  MountTargetBPublic:
+  MountTargetB:
     Type: 'AWS::EFS::MountTarget'
     Properties:
       FileSystemId: !Ref FileSystem
       SecurityGroups:
       - !Ref SecurityGroup
       SubnetId: {'Fn::ImportValue': !Sub '${VpcModule}-SubnetIdBPublic'}
-  MountTargetBPrivate:
-    Type: 'AWS::EFS::MountTarget'
-    Properties:
-      FileSystemId: !Ref FileSystem
-      SecurityGroups:
-      - !Ref SecurityGroup
-      SubnetId: {'Fn::ImportValue': !Sub '${VpcModule}-SubnetIdBPrivate'}
-  MountTargetCPublic:
+  MountTargetC:
     Condition: HasAvailabilityZoneC
     Type: 'AWS::EFS::MountTarget'
     Properties:
@@ -132,19 +118,11 @@ Resources:
       SecurityGroups:
       - !Ref SecurityGroup
       SubnetId: {'Fn::ImportValue': !Sub '${VpcModule}-SubnetIdCPublic'}
-  MountTargetCPrivate:
-    Condition: HasAvailabilityZoneC
-    Type: 'AWS::EFS::MountTarget'
-    Properties:
-      FileSystemId: !Ref FileSystem
-      SecurityGroups:
-      - !Ref SecurityGroup
-      SubnetId: {'Fn::ImportValue': !Sub '${VpcModule}-SubnetIdCPrivate'}
 Outputs:
   ModuleId:
     Value: 'efs-file-system'
   ModuleVersion:
-    Value: '0.0.1'
+    Value: '0.0.2'
   StackName:
     Value: !Ref 'AWS::StackName'
   Id:
