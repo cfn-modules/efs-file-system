@@ -1,0 +1,16 @@
+{
+  "name": "@cfn-modules/efs-file-system",
+  "version": "0.0.1",
+  "description": "AWS EFS file system with alerting",
+  "author": "Michael Wittig <michael@widdix.de>",
+  "license": "Apache-2.0",
+  "keywords": ["cfn-modules", "cfn-modules:ExposeId"],
+  "homepage": "https://github.com/cfn-modules",
+  "bugs": {
+    "url": "https://github.com/cfn-modules/efs-file-system/issues"
+  },
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/cfn-modules/efs-file-system.git"
+  }
+}

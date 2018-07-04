@@ -1,0 +1,154 @@
+---
+# Copyright 2018 widdix GmbH
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'cfn-modules: AWS EFS file system'
+# cfn-modules:implements(ExposeId)
+Parameters:
+  VpcModule:
+    Description: 'Stack name of vpc module.'
+    Type: String
+  ClientSgModule:
+    Description: 'Stack name of client-sg module.'
+    Type: String
+  AlertingModule:
+    Description: 'Optional but recommended stack name of alerting module.'
+    Type: String
+    Default: ''
+  KmsKeyModule:
+    Description: 'Optional but recommended stack name of kms-key module.'
+    Type: String
+    Default: ''
+  PerformanceMode:
+    Description: 'The performance mode of the file system.'
+    Type: String
+    Default: generalPurpose
+    AllowedValues: [generalPurpose, maxIO]
+  NumberOfAvailabilityZones: # TODO CloudFormation can not use conditions based on imported values
+    Description: 'How many availability zones should be used? Same as in the vpc module!'
+    Type: Number
+    Default: 3
+    MinValue: 2
+    MaxValue: 3
+Conditions:
+  HasAvailabilityZoneC: !Equals [!Ref NumberOfAvailabilityZones, 3]
+  HasAlertingModule: !Not [!Equals [!Ref AlertingModule, '']]
+  HasKmsKeyModule: !Not [!Equals [!Ref KmsKeyModule, '']]
+Resources:
+  SecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: !Ref 'AWS::StackName'
+      VpcId: {'Fn::ImportValue': !Sub '${VpcModule}-Id'}
+      SecurityGroupIngress:
+      - SourceSecurityGroupId: {'Fn::ImportValue': !Sub '${ClientSgModule}-SecurityGroupId'}
+        FromPort: 2049
+        ToPort: 2049
+        IpProtocol: tcp
+  FileSystem:
+    Type: 'AWS::EFS::FileSystem'
+    Properties:
+      Encrypted: !If [HasKmsKeyModule, true, false]
+      KmsKeyId: !If [HasKmsKeyModule, {'Fn::ImportValue': !Sub '${KmsKeyModule}-Arn'}, !Ref 'AWS::NoValue']
+      PerformanceMode: !Ref PerformanceMode
+  AlarmPercentIOLimitTooHigh:
+    Condition: HasAlertingModule
+    Type: 'AWS::CloudWatch::Alarm'
+    Properties:
+      AlarmDescription: 'Average IO utilization over last 10 minutes higher than 80%'
+      Namespace: 'AWS/EFS'
+      MetricName: PercentIOLimit
+      Statistic: Average
+      Period: 600
+      EvaluationPeriods: 1
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: 80
+      AlarmActions:
+      - 'Fn::ImportValue': !Sub '${AlertingModule}-Arn'
+      Dimensions:
+      - Name: FileSystemId
+        Value: !Ref FileSystem
+  AlarmBurstCreditBalanceTooLow:
+    Condition: HasAlertingModule
+    Type: 'AWS::CloudWatch::Alarm'
+    Properties:
+      AlarmDescription: 'EFS file system is running out of burst credits. You can expect a significant performance drop in the next hour.'
+      Namespace: 'AWS/EFS'
+      MetricName: BurstCreditBalance
+      Statistic: Average
+      Period: 600
+      EvaluationPeriods: 1
+      ComparisonOperator: LessThanThreshold
+      Threshold: 192416666667 # 192 GB in Bytes (last hour where you can burst at 100 MB/sec)
+      AlarmActions:
+      - 'Fn::ImportValue': !Sub '${AlertingModule}-Arn'
+      Dimensions:
+      - Name: FileSystemId
+        Value: !Ref FileSystem
+  MountTargetAPublic:
+    Type: 'AWS::EFS::MountTarget'
+    Properties:
+      FileSystemId: !Ref FileSystem
+      SecurityGroups:
+      - !Ref SecurityGroup
+      SubnetId: {'Fn::ImportValue': !Sub '${VpcModule}-SubnetIdAPublic'}
+  MountTargetAPrivate:
+    Type: 'AWS::EFS::MountTarget'
+    Properties:
+      FileSystemId: !Ref FileSystem
+      SecurityGroups:
+      - !Ref SecurityGroup
+      SubnetId: {'Fn::ImportValue': !Sub '${VpcModule}-SubnetIdAPrivate'}
+  MountTargetBPublic:
+    Type: 'AWS::EFS::MountTarget'
+    Properties:
+      FileSystemId: !Ref FileSystem
+      SecurityGroups:
+      - !Ref SecurityGroup
+      SubnetId: {'Fn::ImportValue': !Sub '${VpcModule}-SubnetIdBPublic'}
+  MountTargetBPrivate:
+    Type: 'AWS::EFS::MountTarget'
+    Properties:
+      FileSystemId: !Ref FileSystem
+      SecurityGroups:
+      - !Ref SecurityGroup
+      SubnetId: {'Fn::ImportValue': !Sub '${VpcModule}-SubnetIdBPrivate'}
+  MountTargetCPublic:
+    Condition: HasAvailabilityZoneC
+    Type: 'AWS::EFS::MountTarget'
+    Properties:
+      FileSystemId: !Ref FileSystem
+      SecurityGroups:
+      - !Ref SecurityGroup
+      SubnetId: {'Fn::ImportValue': !Sub '${VpcModule}-SubnetIdCPublic'}
+  MountTargetCPrivate:
+    Condition: HasAvailabilityZoneC
+    Type: 'AWS::EFS::MountTarget'
+    Properties:
+      FileSystemId: !Ref FileSystem
+      SecurityGroups:
+      - !Ref SecurityGroup
+      SubnetId: {'Fn::ImportValue': !Sub '${VpcModule}-SubnetIdCPrivate'}
+Outputs:
+  ModuleId:
+    Value: 'efs-file-system'
+  ModuleVersion:
+    Value: '0.0.1'
+  StackName:
+    Value: !Ref 'AWS::StackName'
+  Id:
+    Description: 'The id of the file system.'
+    Value: !Ref FileSystem
+    Export:
+      Name: !Sub '${AWS::StackName}-Id'
