@@ -25,8 +25,8 @@ Resources:
         ClientSgModule: !GetAtt 'Client.Outputs.StackName' # required
         AlertingModule: !GetAtt 'Alerting.Outputs.StackName' # optional
         KmsKeyModule: !GetAtt 'Key.Outputs.StackName' # optional
-        PerformanceMode: generalPurpose
-        NumberOfAvailabilityZones: 3
+        PerformanceMode: generalPurpose # optional
+        NumberOfAvailabilityZones: !GetAtt 'Vpc.Outputs.NumberOfAvailabilityZones' # optional (must match with the value of the vpc module)
       TemplateURL: './node_modules/@cfn-modules/efs-file-system/module.yml'
 ```
 
