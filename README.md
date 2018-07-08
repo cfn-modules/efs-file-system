@@ -90,4 +90,4 @@ Resources:
 
 ## Limitations
 
-* Secure: Backups are not enabled
+* Secure: EFS file system is not backed up
