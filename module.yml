@@ -35,7 +35,7 @@ Parameters:
     Type: String
     Default: generalPurpose
     AllowedValues: [generalPurpose, maxIO]
-  NumberOfAvailabilityZones: # TODO CloudFormation can not use conditions based on imported values
+  NumberOfAvailabilityZones: # CloudFormation can not use conditions based on imported values (we have to repeat this information as a parameter, e.g. !GetAtt 'Vpc.Outputs.NumberOfAvailabilityZones')
     Description: 'How many availability zones should be used? Same as in the vpc module!'
     Type: Number
     Default: 3
