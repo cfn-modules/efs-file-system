@@ -15,6 +15,8 @@ npm i @cfn-modules/efs-file-system
 
 ## Usage
 
+> By default, the EFS file system is only [writable by the Linux root user](https://docs.aws.amazon.com/efs/latest/ug/accessing-fs-nfs-permissions.html).
+
 ```
 ---
 AWSTemplateFormatVersion: '2010-09-09'
