@@ -27,7 +27,7 @@ Resources:
     Properties:
       Parameters:
         VpcModule: !GetAtt 'Vpc.Outputs.StackName' # required
-        ClientSgModule: !GetAtt 'Client.Outputs.StackName' # required
+        ClientSgModule: !GetAtt 'ClientSg.Outputs.StackName' # required
         AlertingModule: !GetAtt 'Alerting.Outputs.StackName' # optional
         KmsKeyModule: !GetAtt 'Key.Outputs.StackName' # optional
         PerformanceMode: generalPurpose # optional
