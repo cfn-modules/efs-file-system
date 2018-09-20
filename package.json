@@ -1,6 +1,6 @@
 {
   "name": "@cfn-modules/efs-file-system",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "description": "AWS EFS file system with alerting",
   "author": "Michael Wittig <michael@widdix.de>",
   "license": "Apache-2.0",
