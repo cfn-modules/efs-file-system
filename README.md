@@ -35,6 +35,17 @@ Resources:
       TemplateURL: './node_modules/@cfn-modules/efs-file-system/module.yml'
 ```
 
+## Examples
+
+* [ec2-efs](https://github.com/cfn-modules/docs/tree/master/examples/ec2-efs)
+
+## Related modules
+
+* [asg-singleton-amazon-linux2](https://github.com/cfn-modules/asg-singleton-amazon-linux2)
+* [ec2-instance-amazon-linux](https://github.com/cfn-modules/ec2-instance-amazon-linux)
+* [ec2-instance-amazon-linux2](https://github.com/cfn-modules/ec2-instance-amazon-linux2)
+* [ebs-volume](https://github.com/cfn-modules/ebs-volume)
+
 ## Parameters
 
 <table>
