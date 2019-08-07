@@ -32,6 +32,8 @@ Resources:
         KmsKeyModule: !GetAtt 'Key.Outputs.StackName' # optional
         PerformanceMode: generalPurpose # optional
         NumberOfAvailabilityZones: !GetAtt 'Vpc.Outputs.NumberOfAvailabilityZones' # optional (must match with the value of the vpc module)
+        BackupRetentionPeriod: '30' # optional
+        BackupScheduleExpression: 'cron(0 5 ? * * *)' # optional
       TemplateURL: './node_modules/@cfn-modules/efs-file-system/module.yml'
 ```
 
@@ -101,9 +103,19 @@ Resources:
       <td>no></td>
       <td>[2-3]</td>
     </tr>
+    <tr>
+      <td>BackupRetentionPeriod</td>
+      <td>The number of days to keep backups of the EFS file system</td>
+      <td>30</td>
+      <td>no></td>
+      <td>[1-35]</td>
+    </tr>
+    <tr>
+      <td>BackupScheduleExpression</td>
+      <td>A CRON expression specifying when AWS Backup initiates a backup job</td>
+      <td>cron(0 5 ? * * *)</td>
+      <td>no></td>
+      <td></td>
+    </tr>
   </tbody>
 </table>
-
-## Limitations
-
-* Secure: EFS file system is not backed up
