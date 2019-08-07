@@ -41,6 +41,16 @@ Parameters:
     Default: 3
     MinValue: 2
     MaxValue: 3
+  BackupRetentionPeriod:
+    Description: 'The number of days to keep backups of the EFS file system.'
+    Type: Number
+    MinValue: 1
+    MaxValue: 35
+    Default: 30
+  BackupScheduleExpression:
+    Description: 'A CRON expression specifying when AWS Backup initiates a backup job.'
+    Type: String
+    Default: 'cron(0 5 ? * * *)'
 Conditions:
   HasAvailabilityZoneC: !Equals [!Ref NumberOfAvailabilityZones, 3]
   HasAlertingModule: !Not [!Equals [!Ref AlertingModule, '']]
@@ -118,11 +128,58 @@ Resources:
       SecurityGroups:
       - !Ref SecurityGroup
       SubnetId: {'Fn::ImportValue': !Sub '${VpcModule}-SubnetIdCPublic'}
+  BackupVault: # cannot be deleted with data
+    Type: 'AWS::Backup::BackupVault'
+    Properties:
+      BackupVaultName: !Ref 'AWS::StackName'
+      Notifications: !If [HasAlertingModule, {BackupVaultEvents: [BACKUP_JOB_STARTED, BACKUP_JOB_COMPLETED, RESTORE_JOB_STARTED, RESTORE_JOB_COMPLETED, RECOVERY_POINT_MODIFIED], SNSTopicArn: {'Fn::ImportValue': !Sub '${AlertingModule}-Arn'}}, !Ref 'AWS::NoValue']
+  BackupPlan:
+    Type: 'AWS::Backup::BackupPlan'
+    Properties:
+      BackupPlan:
+        BackupPlanName: !Ref 'AWS::StackName'
+        BackupPlanRule:
+        - CompletionWindowMinutes: 1440
+          Lifecycle:
+            DeleteAfterDays: !Ref BackupRetentionPeriod
+          RuleName: !Ref 'AWS::StackName'
+          ScheduleExpression: !Ref BackupScheduleExpression
+          StartWindowMinutes: 60
+          TargetBackupVault: !Ref BackupVault
+  BackupRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: 'backup.amazonaws.com'
+          Action: 'sts:AssumeRole'
+      Policies:
+      - PolicyName: backup
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - 'elasticfilesystem:Backup'
+            - 'elasticfilesystem:DescribeTags'
+            Resource: !Sub 'arn:${AWS::Partition}:elasticfilesystem:${AWS::Region}:${AWS::AccountId}:file-system/${FileSystem}'
+  BackupSelection:
+    Type: 'AWS::Backup::BackupSelection'
+    Properties:
+      BackupPlanId: !Ref BackupPlan
+      BackupSelection:
+        IamRoleArn: !GetAtt 'BackupRole.Arn'
+        Resources:
+        - !Sub 'arn:${AWS::Partition}:elasticfilesystem:${AWS::Region}:${AWS::AccountId}:file-system/${FileSystem}'
+        SelectionName: !Ref 'AWS::StackName'
 Outputs:
   ModuleId:
     Value: 'efs-file-system'
   ModuleVersion:
-    Value: '1.0.0'
+    Value: '1.1.0'
   StackName:
     Value: !Ref 'AWS::StackName'
   Id:
