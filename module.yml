@@ -161,7 +161,7 @@ Resources:
             Service: 'backup.amazonaws.com'
           Action: 'sts:AssumeRole'
       Policies:
-      - PolicyName: backup https://docs.aws.amazon.com/aws-backup/latest/devguide/access-control.html#managed-policies
+      - PolicyName: backup # https://docs.aws.amazon.com/aws-backup/latest/devguide/access-control.html#managed-policies
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
