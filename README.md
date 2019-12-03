@@ -70,7 +70,7 @@ Resources:
     </tr>
     <tr>
       <td>ClientSgModule</td>
-      <td>Stack name of <a href="https://www.npmjs.com/package/@cfn-modules/client-sg">client-sg module</a> where traffic is allowed from on port 5432 to the database</td>
+      <td>Stack name of <a href="https://www.npmjs.com/package/@cfn-modules/client-sg">client-sg module</a> where traffic is allowed from on port 2049 to the filesystem</td>
       <td></td>
       <td>no</td>
       <td></td>
