@@ -1,6 +1,3 @@
-[![Build Status](https://travis-ci.org/cfn-modules/efs-file-system.svg?branch=master)](https://travis-ci.org/cfn-modules/efs-file-system)
-[![NPM version](https://img.shields.io/npm/v/@cfn-modules/efs-file-system.svg)](https://www.npmjs.com/package/@cfn-modules/efs-file-system)
-
 # cfn-modules: AWS EFS file system
 
 AWS EFS file system with [alerting](https://www.npmjs.com/package/@cfn-modules/alerting).
