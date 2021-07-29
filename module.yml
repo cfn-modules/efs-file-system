@@ -111,7 +111,7 @@ Resources:
     Condition: HasAlertingModule
     Type: 'AWS::CloudWatch::Alarm'
     Properties:
-      AlarmDescription: 'Reached 80% of the permitted throughput over last 10 minutes.'
+      AlarmDescription: 'Reached 80% of the permitted throughput 6 times over last 10 minutes.'
       Metrics:
       - Id: m1
         Label: MeteredIOBytes
@@ -151,7 +151,8 @@ Resources:
         Id: e3
         Label: 'Throughput utilization (%)'
         ReturnData: true
-      EvaluationPeriods: 1
+      EvaluationPeriods: 10
+      DatapointsToAlarm: 6
       ComparisonOperator: GreaterThanThreshold
       Threshold: 80
       AlarmActions:
